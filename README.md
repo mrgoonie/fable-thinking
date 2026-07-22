@@ -2,6 +2,10 @@
 
 > The reasoning discipline of Claude Fable 5, distilled into an executable protocol — packaged as a Claude Code plugin.
 
+[![Fable Thinking](./web/assets/hero-dark.png)](https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/)
+
+<p align="center"><b><a href="https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/">→ View the live landing page</a></b> · dark/light theme · EN / VI</p>
+
 **Fable Thinking** is not a persona to imitate. It is a set of mechanical procedures that make any model's reasoning more grounded, better calibrated, and harder to fool — including by its own fluent output. It cannot add capability; it removes the predictable failure modes that waste whatever capability the executing model has.
 
 It works across models and runtimes (Claude, Codex/GPT, Gemini, local models).
@@ -54,8 +58,15 @@ fable-thinking/
 │   └── fable-thinking/
 │       ├── SKILL.md          # The reasoning protocol
 │       └── references/       # Content, design, and worked examples
+├── web/                      # Landing page (published to AgentWiki)
+│   ├── index.html
+│   └── assets/hero-dark.png
 └── README.md
 ```
+
+## Live page
+
+The landing page is published at **[api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7](https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/)** — dark/light theme, English and Vietnamese.
 
 ## Credits
 

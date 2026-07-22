@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fable Thinking · a reasoning protocol for any model</title>
+<meta name="description" content="Fable Thinking is a mechanical reasoning protocol distilled from Claude Fable 5. It removes the predictable failure modes that make fluent models confidently wrong.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600;6..96,700&family=Hanken+Grotesk:wght@350;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap&subset=latin,latin-ext,vietnamese" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --font-display:"Bodoni Moda", Georgia, serif;
+  --font-body:"Hanken Grotesk", system-ui, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, monospace;
+
+  --step-0: 1.0625rem;
+  --step-1: clamp(1.2rem, 0.5vw + 1.05rem, 1.4rem);
+  --step-2: clamp(1.5rem, 1vw + 1.2rem, 1.95rem);
+  --step-3: clamp(2rem, 2vw + 1.4rem, 2.9rem);
+  --display: clamp(2.9rem, 6.5vw + 1rem, 6.2rem);
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px;
+  --sp-8:32px; --sp-12:48px; --sp-16:64px; --sp-24:96px;
+
+  --radius:10px;
+  --hair:1px;
+  --maxw:1180px;
+
+  --ease-out-quint:cubic-bezier(0.22,1,0.36,1);
+  --ease-out-quart:cubic-bezier(0.25,1,0.5,1);
+}
+
+/* Dark = designed primary */
+html[data-theme="dark"]{
+  --bg: oklch(0.155 0.012 260);
+  --surface: oklch(0.195 0.013 260);
+  --surface-2: oklch(0.235 0.015 262);
+  --text: oklch(0.945 0.008 85);
+  --muted: oklch(0.70 0.012 262);
+  --faint: oklch(0.55 0.012 262);
+  --hairline: oklch(0.32 0.012 262);
+  --accent: oklch(0.82 0.135 76);
+  --accent-soft: oklch(0.82 0.135 76 / 0.12);
+  --accent-ink: oklch(0.20 0.05 76);
+  --shadow-hue: 260;
+  color-scheme: dark;
+}
+html[data-theme="light"]{
+  --bg: oklch(0.965 0.004 255);
+  --surface: oklch(0.995 0.003 255);
+  --surface-2: oklch(0.925 0.006 258);
+  --text: oklch(0.205 0.016 265);
+  --muted: oklch(0.445 0.014 265);
+  --faint: oklch(0.58 0.012 265);
+  --hairline: oklch(0.86 0.007 258);
+  --accent: oklch(0.62 0.15 58);
+  --accent-soft: oklch(0.62 0.15 58 / 0.10);
+  --accent-ink: oklch(0.99 0.01 90);
+  --shadow-hue: 258;
+  color-scheme: light;
+}
+
+*{box-sizing:border-box; margin:0; padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-weight:400;
+  font-size:var(--step-0); line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition:background .4s var(--ease-out-quart), color .4s var(--ease-out-quart);
+  overflow-x:hidden;
+}
+html[data-theme="dark"] body{line-height:1.66; letter-spacing:0.005em; font-weight:350}
+::selection{background:var(--accent); color:var(--accent-ink)}
+a{color:inherit; text-decoration:none}
+.wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:var(--sp-6)}
+.mono{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+
+/* ============ NAV ============ */
+nav{
+  position:sticky; top:0; z-index:50;
+  height:68px; display:flex; align-items:center;
+  background:color-mix(in oklab, var(--bg) 82%, transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:var(--hair) solid var(--hairline);
+}
+nav .wrap{display:flex; align-items:center; gap:var(--sp-8); width:100%}
+.brand{font-family:var(--font-display); font-weight:700; font-size:1.28rem; letter-spacing:-0.01em; display:flex; align-items:center; gap:10px}
+.brand .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-soft)}
+.nav-links{display:flex; gap:var(--sp-6); margin-left:auto; font-size:0.95rem; color:var(--muted)}
+.nav-links a{position:relative; padding:4px 0; transition:color .2s}
+.nav-links a::after{content:""; position:absolute; left:0; bottom:-2px; width:0; height:2px; background:var(--accent); transition:width .25s var(--ease-out-quart)}
+.nav-links a:hover{color:var(--text)} .nav-links a:hover::after{width:100%}
+.nav-toggles{display:flex; gap:var(--sp-2); align-items:center}
+.toggle{
+  font-family:var(--font-mono); font-size:0.78rem; font-weight:500;
+  background:var(--surface); color:var(--muted);
+  border:var(--hair) solid var(--hairline); border-radius:8px;
+  height:38px; padding:0 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  transition:color .2s, border-color .2s, background .2s;
+}
+.toggle:hover{color:var(--text); border-color:var(--accent)}
+.toggle:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.toggle .on{color:var(--accent)}
+@media (max-width:760px){ .nav-links{display:none} }
+
+/* ============ HERO ============ */
+.hero{padding:var(--sp-24) 0 var(--sp-16); position:relative}
+.hero .wrap{display:grid; grid-template-columns:1.35fr 1fr; gap:var(--sp-16); align-items:center}
+@media (max-width:940px){ .hero .wrap{grid-template-columns:1fr; gap:var(--sp-12)} }
+.eyebrow{font-family:var(--font-mono); font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:var(--sp-6); display:inline-flex; align-items:center; gap:8px}
+.eyebrow::before{content:""; width:22px; height:1px; background:var(--accent)}
+h1{
+  font-family:var(--font-display); font-weight:700;
+  font-size:var(--display); line-height:1.02; letter-spacing:-0.025em;
+  text-wrap:balance; margin-bottom:var(--sp-6);
+}
+h1 em{font-style:italic; color:var(--accent)}
+.lead{font-size:var(--step-1); color:var(--muted); max-width:34ch; line-height:1.5; text-wrap:pretty}
+.cta-row{display:flex; gap:var(--sp-3); margin-top:var(--sp-8); flex-wrap:wrap}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; height:50px; padding:0 22px;
+  border-radius:9px; font-weight:600; font-size:0.98rem; cursor:pointer;
+  border:var(--hair) solid transparent; transition:transform .12s, box-shadow .25s, background .2s, border-color .2s;
+}
+.btn-primary{background:var(--accent); color:var(--accent-ink); box-shadow:0 2px 12px oklch(0.82 0.135 76 / 0.25)}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:0 8px 24px oklch(0.82 0.135 76 / 0.32)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{background:transparent; color:var(--text); border-color:var(--hairline)}
+.btn-ghost:hover{border-color:var(--accent); color:var(--accent); transform:translateY(-2px)}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+/* Floor terminal panel */
+.floor-panel{
+  background:var(--surface); border:var(--hair) solid var(--hairline);
+  border-radius:var(--radius); overflow:hidden;
+  font-family:var(--font-mono); font-size:0.86rem;
+  box-shadow:0 1px 2px oklch(0.15 0.02 var(--shadow-hue) / 0.10), 0 16px 40px oklch(0.12 0.02 var(--shadow-hue) / 0.22);
+}
+.fp-bar{display:flex; align-items:center; gap:7px; padding:12px 16px; border-bottom:var(--hair) solid var(--hairline); background:var(--surface-2)}
+.fp-bar span{width:10px; height:10px; border-radius:50%; background:var(--hairline)}
+.fp-bar span:first-child{background:var(--accent)}
+.fp-title{margin-left:auto; color:var(--faint); font-size:0.74rem; letter-spacing:0.1em; text-transform:uppercase}
+.fp-body{padding:20px 18px}
+.fp-h{color:var(--accent); font-weight:700; letter-spacing:0.06em; font-size:0.95rem}
+.fp-sub{color:var(--faint); font-size:0.78rem; margin:4px 0 18px}
+.fp-check{display:grid; grid-template-columns:auto 1fr; gap:12px; padding:9px 0; border-top:var(--hair) solid var(--hairline)}
+.fp-check .n{color:var(--accent); font-weight:700}
+.fp-check .k{color:var(--text); font-weight:500; text-transform:uppercase; letter-spacing:0.04em; font-size:0.76rem}
+.fp-check .d{color:var(--muted); font-size:0.8rem; grid-column:2; margin-top:2px; line-height:1.45}
+.fp-prompt{margin-top:16px; padding-top:14px; border-top:var(--hair) solid var(--hairline); color:var(--muted); font-size:0.8rem}
+.fp-prompt b{color:var(--accent)}
+.caret{display:inline-block; width:8px; height:1.05em; background:var(--accent); vertical-align:-2px; margin-left:2px; animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.caret{animation:none}}
+
+/* ============ SECTIONS ============ */
+section{padding:var(--sp-24) 0; border-top:var(--hair) solid var(--hairline)}
+.sec-head{max-width:56ch; margin-bottom:var(--sp-12)}
+h2{font-family:var(--font-display); font-weight:600; font-size:var(--step-3); line-height:1.08; letter-spacing:-0.02em; text-wrap:balance}
+.sec-lead{color:var(--muted); font-size:var(--step-1); margin-top:var(--sp-4); line-height:1.5; max-width:52ch; text-wrap:pretty}
+
+/* Failures — editorial two column */
+.fail-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:0 var(--sp-16)}
+@media (max-width:760px){ .fail-grid{grid-template-columns:1fr; gap:0} }
+.fail{padding:var(--sp-6) 0; border-top:var(--hair) solid var(--hairline); display:grid; grid-template-columns:auto 1fr; gap:var(--sp-4)}
+.fail .idx{font-family:var(--font-mono); font-size:0.8rem; color:var(--accent); padding-top:4px}
+.fail h3{font-family:var(--font-body); font-size:1.1rem; font-weight:600; letter-spacing:-0.01em}
+.fail p{color:var(--muted); font-size:0.96rem; margin-top:6px; line-height:1.5}
+
+/* The Floor — full bleed band */
+.band{background:var(--surface); border-top:var(--hair) solid var(--hairline); border-bottom:var(--hair) solid var(--hairline)}
+.floor-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-6); margin-top:var(--sp-12)}
+@media (max-width:820px){ .floor-cards{grid-template-columns:1fr} }
+.fcard{position:relative; padding:var(--sp-8) var(--sp-6); border:var(--hair) solid var(--hairline); border-radius:var(--radius); background:var(--bg); transition:transform .25s var(--ease-out-quart), border-color .25s}
+.fcard:hover{transform:translateY(-4px); border-color:var(--accent)}
+.fcard .num{font-family:var(--font-mono); font-size:0.8rem; color:var(--accent); letter-spacing:0.1em}
+.fcard h3{font-family:var(--font-display); font-size:1.7rem; font-weight:600; margin:var(--sp-3) 0 var(--sp-3); letter-spacing:-0.01em}
+.fcard p{color:var(--muted); font-size:0.94rem; line-height:1.5}
+
+/* Five moves — asymmetric grid */
+.moves-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:var(--sp-4); margin-top:var(--sp-12)}
+.move{border:var(--hair) solid var(--hairline); border-radius:var(--radius); padding:var(--sp-6); background:var(--surface); transition:border-color .25s, transform .25s}
+.move:hover{border-color:var(--accent); transform:translateY(-3px)}
+.move:nth-child(1){grid-column:span 3}
+.move:nth-child(2){grid-column:span 3}
+.move:nth-child(3){grid-column:span 2}
+.move:nth-child(4){grid-column:span 2}
+.move:nth-child(5){grid-column:span 2}
+@media (max-width:820px){ .moves-grid{grid-template-columns:1fr} .move{grid-column:span 1 !important} }
+.move .tag{font-family:var(--font-mono); font-size:0.76rem; color:var(--accent); letter-spacing:0.14em; text-transform:uppercase}
+.move h3{font-family:var(--font-body); font-size:1.22rem; font-weight:600; margin:var(--sp-3) 0 var(--sp-2); letter-spacing:-0.01em}
+.move p{color:var(--muted); font-size:0.94rem; line-height:1.5}
+
+/* Claim discipline — table */
+.claim-table{width:100%; border-collapse:collapse; margin-top:var(--sp-8); font-size:0.94rem}
+.claim-table th{text-align:left; font-family:var(--font-mono); font-size:0.74rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); padding:0 var(--sp-4) var(--sp-3); border-bottom:var(--hair) solid var(--hairline)}
+.claim-table td{padding:var(--sp-4); border-bottom:var(--hair) solid var(--hairline); vertical-align:top; color:var(--muted)}
+.claim-table td:first-child{color:var(--accent); font-family:var(--font-mono); font-weight:500; white-space:nowrap; letter-spacing:0.03em}
+.claim-table .g{font-family:var(--font-mono); font-size:0.86rem; color:var(--text)}
+
+/* Use cases — tag grid */
+.tags{display:flex; flex-wrap:wrap; gap:var(--sp-3); margin-top:var(--sp-8)}
+.tag-chip{border:var(--hair) solid var(--hairline); border-radius:100px; padding:10px 18px; font-size:0.94rem; color:var(--muted); transition:color .2s, border-color .2s, transform .2s; cursor:default}
+.tag-chip:hover{color:var(--accent); border-color:var(--accent); transform:translateY(-2px)}
+
+/* Install */
+.install-wrap{display:grid; grid-template-columns:1fr 1.1fr; gap:var(--sp-16); align-items:center}
+@media (max-width:820px){ .install-wrap{grid-template-columns:1fr; gap:var(--sp-8)} }
+.code-block{background:var(--surface); border:var(--hair) solid var(--hairline); border-radius:var(--radius); overflow:hidden; font-family:var(--font-mono); font-size:0.9rem}
+.cb-bar{display:flex; align-items:center; padding:12px 16px; border-bottom:var(--hair) solid var(--hairline); color:var(--faint); font-size:0.76rem; letter-spacing:0.08em; text-transform:uppercase; background:var(--surface-2)}
+.cb-copy{margin-left:auto; cursor:pointer; color:var(--muted); background:none; border:none; font-family:var(--font-mono); font-size:0.76rem; transition:color .2s}
+.cb-copy:hover{color:var(--accent)}
+.cb-copy:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.cb-body{padding:18px 18px}
+.cb-line{display:flex; gap:10px; padding:5px 0; line-height:1.5}
+.cb-line .p{color:var(--accent); user-select:none}
+.cb-line code{color:var(--text)}
+.install-note{color:var(--faint); font-size:0.86rem; margin-top:var(--sp-6); font-family:var(--font-mono)}
+
+/* Footer */
+footer{border-top:var(--hair) solid var(--hairline); padding:var(--sp-16) 0}
+footer .wrap{display:flex; align-items:baseline; justify-content:space-between; gap:var(--sp-6); flex-wrap:wrap}
+.foot-brand{font-family:var(--font-display); font-size:1.5rem; font-weight:700; letter-spacing:-0.01em}
+.foot-tag{color:var(--muted); font-size:0.96rem; margin-top:4px}
+.foot-links{display:flex; gap:var(--sp-6); font-size:0.94rem; color:var(--muted)}
+.foot-links a:hover{color:var(--accent)}
+.foot-credit{color:var(--faint); font-size:0.84rem; margin-top:var(--sp-8); font-family:var(--font-mono)}
+
+/* Scroll reveal */
+.reveal{opacity:0; transform:translateY(18px); transition:opacity .7s var(--ease-out-quint), transform .7s var(--ease-out-quint)}
+.reveal.in{opacity:1; transform:none}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1; transform:none; transition:none} }
+</style>
+<noscript><style>.reveal{opacity:1 !important; transform:none !important}</style></noscript>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>Fable Thinking</div>
+    <div class="nav-links">
+      <a href="#floor" data-i18n="nav.floor">The Floor</a>
+      <a href="#moves" data-i18n="nav.moves">The Moves</a>
+      <a href="#install" data-i18n="nav.install">Install</a>
+    </div>
+    <div class="nav-toggles">
+      <button class="toggle" id="langBtn" aria-label="Toggle language"><span class="on">EN</span> / VI</button>
+      <button class="toggle" id="themeBtn" aria-label="Toggle theme"><span id="themeIcon">◐</span></button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow" data-i18n="hero.eyebrow">Reasoning protocol · distilled from Fable 5</span>
+      <h1 data-i18n-html="hero.h1">The reasoning your model <em>skips</em>.</h1>
+      <p class="lead" data-i18n="hero.sub">A mechanical protocol distilled from Claude Fable 5. It removes the predictable failure modes that make fluent models confidently wrong, on any model or runtime.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#install" data-i18n="hero.cta1">Install the plugin</a>
+        <a class="btn btn-ghost" href="https://github.com/mrgoonie/fable-thinking" target="_blank" rel="noopener" data-i18n="hero.cta2">Read the protocol</a>
+      </div>
+    </div>
+    <div class="floor-panel reveal" aria-hidden="true">
+      <div class="fp-bar"><span></span><span></span><span></span><div class="fp-title">the floor</div></div>
+      <div class="fp-body">
+        <div class="fp-h">THE FLOOR</div>
+        <div class="fp-sub" data-i18n="fp.sub">runs before every answer, never skipped</div>
+        <div class="fp-check"><span class="n">01</span><span class="k">Goal</span><span class="d" data-i18n="fp.c1">state the end-state, not the wording</span></div>
+        <div class="fp-check"><span class="n">02</span><span class="k">Follow-through</span><span class="d" data-i18n="fp.c2">run the movie to the verified frame</span></div>
+        <div class="fp-check"><span class="n">03</span><span class="k">Leftovers</span><span class="d" data-i18n="fp.c3">name the detail your answer ignored</span></div>
+        <div class="fp-prompt mono"><b>&gt;</b> <span data-i18n="fp.prompt">any check trips, leave Direct mode, run the moves</span><span class="caret"></span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 data-i18n="why.h2">Fluent is not true</h2>
+      <p class="sec-lead" data-i18n="why.lead">Models fail in predictable ways. Naming the default failure is the first countermeasure.</p>
+    </div>
+    <div class="fail-grid">
+      <div class="fail reveal"><span class="idx">01</span><div><h3 data-i18n="why.1.t">Pattern-match satisfaction</h3><p data-i18n="why.1.d">The first explanation that fits a familiar template feels like the diagnosis. Familiarity is retrieval, not verification.</p></div></div>
+      <div class="fail reveal"><span class="idx">02</span><div><h3 data-i18n="why.2.t">Template hijack</h3><p data-i18n="why.2.d">A question that matches a stored template fires the template's answer before this question's constraints are read.</p></div></div>
+      <div class="fail reveal"><span class="idx">03</span><div><h3 data-i18n="why.3.t">Fluent is not true</h3><p data-i18n="why.3.d">Well-formed prose feels more correct as it flows. Confidence rises with token count, not with evidence.</p></div></div>
+      <div class="fail reveal"><span class="idx">04</span><div><h3 data-i18n="why.4.t">Prior as fact</h3><p data-i18n="why.4.d">Training knowledge gets stated in the grammar of observed fact. Priors decay: APIs change, prices move, docs rot.</p></div></div>
+      <div class="fail reveal"><span class="idx">05</span><div><h3 data-i18n="why.5.t">Confirmation seeking</h3><p data-i18n="why.5.d">Once you hold a favorite hypothesis, you pick the tests it will pass instead of the tests that would split it.</p></div></div>
+      <div class="fail reveal"><span class="idx">06</span><div><h3 data-i18n="why.6.t">Surface blindness</h3><p data-i18n="why.6.d">You read your own output as tokens, not characters. Any claim about its surface form is a guess until verified unit by unit.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="floor" class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 data-i18n="floor.h2">The Floor</h2>
+      <p class="sec-lead" data-i18n="floor.lead">Three checks, a few seconds each, before every answer. Including the simple-looking ones. Those are exactly where confident wrong answers live.</p>
+    </div>
+    <div class="floor-cards">
+      <div class="fcard reveal"><span class="num">01 / GOAL</span><h3 data-i18n="floor.1.t">Goal</h3><p data-i18n="floor.1.d">State the end-state the asker wants in the world, not the question's wording. The goal sentence must not mention any offered option.</p></div>
+      <div class="fcard reveal"><span class="num">02 / FOLLOW-THROUGH</span><h3 data-i18n="floor.2.t">Follow-through</h3><p data-i18n="floor.2.d">Run the movie: the asker does exactly what you are about to say. It ends only at the frame where the goal state is verified, never at the first milestone.</p></div>
+      <div class="fcard reveal"><span class="num">03 / LEFTOVERS</span><h3 data-i18n="floor.3.t">Leftovers</h3><p data-i18n="floor.3.d">Name any detail of the request your answer never used. In a short question every detail is load-bearing. An unused one usually marks the trap.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="moves">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 data-i18n="moves.h2">Five moves when the Floor trips</h2>
+      <p class="sec-lead" data-i18n="moves.lead">When a check trips, the question was not as simple as it looked. Leave Direct mode and run these.</p>
+    </div>
+    <div class="moves-grid">
+      <div class="move reveal"><span class="tag">Move 01 · Frame</span><h3 data-i18n="m1.t">Find the real question</h3><p data-i18n="m1.d">Restate the ask and the goal as an end-state. Name what is adjacent but not asked. List the one to three load-bearing facts.</p></div>
+      <div class="move reveal"><span class="tag">Move 02 · Ground</span><h3 data-i18n="m2.t">Establish truth first</h3><p data-i18n="m2.d">Sort what you observed from what you assume. Verify load-bearing facts with tools, not memory. The cheapest way to be right is to look.</p></div>
+      <div class="move reveal"><span class="tag">Move 03 · Reason</span><h3 data-i18n="m3.t">Mechanism, not vibes</h3><p data-i18n="m3.d">Hold two hypotheses before investigating one. Simulate with concrete values. Demand a checkable chain from cause to effect.</p></div>
+      <div class="move reveal"><span class="tag">Move 04 · Attack</span><h3 data-i18n="m4.t">Kill your own conclusion</h3><p data-i18n="m4.d">Become the reviewer whose job is to reject the work. Run the cheap kill-test now. Skipping it to protect a conclusion is the cardinal sin.</p></div>
+      <div class="move reveal"><span class="tag">Move 05 · Deliver</span><h3 data-i18n="m5.t">Outcome first, calibrated</h3><p data-i18n="m5.d">State the verdict in the first sentence. Match grammar to claim type. Close with the weakest link and any open questions.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="claim" class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 data-i18n="claim.h2">Say what you know, in the right grammar</h2>
+      <p class="sec-lead" data-i18n="claim.lead">A hallucination is a prior or an assumption wearing the grammar of an observation. The grammar is the tell.</p>
+    </div>
+    <div class="reveal" style="overflow-x:auto">
+      <table class="claim-table">
+        <thead><tr>
+          <th data-i18n="claim.h.type">Type</th>
+          <th data-i18n="claim.h.mean">Meaning</th>
+          <th data-i18n="claim.h.gram">Allowed grammar</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>OBSERVED</td><td data-i18n="claim.r1.m">You saw it this session: ran it, read it, measured it.</td><td class="g">"X is / does / returns"</td></tr>
+          <tr><td>DERIVED</td><td data-i18n="claim.r2.m">Follows from observed facts via a mechanism you can state.</td><td class="g">"X should / will / implies"</td></tr>
+          <tr><td>PRIOR</td><td data-i18n="claim.r3.m">Training knowledge. May be stale. Verify if load-bearing.</td><td class="g">"X is typically / was, as of"</td></tr>
+          <tr><td>ASSUMED</td><td data-i18n="claim.r4.m">Unverified and required by the conclusion.</td><td class="g">"assuming X, if wrong then"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="use">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2 data-i18n="use.h2">Reach for it when being right beats being fast</h2>
+      <p class="sec-lead" data-i18n="use.lead">A depth budget of stakes times irreversibility times novelty decides how much runs. Simple asks get a direct answer, after the Floor.</p>
+    </div>
+    <div class="tags reveal">
+      <span class="tag-chip" data-i18n="use.t1">Debugging</span>
+      <span class="tag-chip" data-i18n="use.t2">Root-cause analysis</span>
+      <span class="tag-chip" data-i18n="use.t3">Code review</span>
+      <span class="tag-chip" data-i18n="use.t4">Architecture decisions</span>
+      <span class="tag-chip" data-i18n="use.t5">Contested claims</span>
+      <span class="tag-chip" data-i18n="use.t6">Constrained writing</span>
+      <span class="tag-chip" data-i18n="use.t7">Security review</span>
+      <span class="tag-chip" data-i18n="use.t8">Data migrations</span>
+      <span class="tag-chip" data-i18n="use.t9">High-stakes writing</span>
+      <span class="tag-chip" data-i18n="use.t10">Trick questions</span>
+    </div>
+  </div>
+</section>
+
+<section id="install" class="band">
+  <div class="wrap install-wrap">
+    <div class="sec-head reveal" style="margin-bottom:0">
+      <h2 data-i18n="install.h2">Install in Claude Code</h2>
+      <p class="sec-lead" data-i18n="install.lead">This repository is a Claude Code plugin marketplace. Add it, then install the plugin.</p>
+      <p class="install-note" data-i18n="install.note">Runtime-agnostic. The same protocol applies to Codex, Gemini, and local models.</p>
+    </div>
+    <div class="code-block reveal">
+      <div class="cb-bar">claude code<button class="cb-copy" id="copyBtn" data-i18n="install.copy">copy</button></div>
+      <div class="cb-body" id="codeText">
+        <div class="cb-line"><span class="p">/</span><code>plugin marketplace add mrgoonie/fable-thinking</code></div>
+        <div class="cb-line"><span class="p">/</span><code>plugin install fable-thinking@fable-thinking</code></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="foot-brand">Fable Thinking</div>
+      <div class="foot-tag" data-i18n="foot.tag">A reasoning discipline, not a persona.</div>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/mrgoonie/fable-thinking" target="_blank" rel="noopener" data-i18n="foot.repo">GitHub</a>
+      <a href="#floor" data-i18n="nav.floor">The Floor</a>
+      <a href="#install" data-i18n="nav.install">Install</a>
+    </div>
+  </div>
+  <div class="wrap"><div class="foot-credit" data-i18n="foot.credit">Distilled from Claude Fable 5. MIT licensed.</div></div>
+</footer>
+
+<script>
+/* ============ i18n ============ */
+const I18N = {
+  en: {
+    "nav.floor":"The Floor","nav.moves":"The Moves","nav.install":"Install",
+    "hero.eyebrow":"Reasoning protocol · distilled from Fable 5",
+    "hero.h1":"The reasoning your model <em>skips</em>.",
+    "hero.sub":"A mechanical protocol distilled from Claude Fable 5. It removes the predictable failure modes that make fluent models confidently wrong, on any model or runtime.",
+    "hero.cta1":"Install the plugin","hero.cta2":"Read the protocol",
+    "fp.sub":"runs before every answer, never skipped",
+    "fp.c1":"state the end-state, not the wording",
+    "fp.c2":"run the movie to the verified frame",
+    "fp.c3":"name the detail your answer ignored",
+    "fp.prompt":"any check trips, leave Direct mode, run the moves",
+    "why.h2":"Fluent is not true",
+    "why.lead":"Models fail in predictable ways. Naming the default failure is the first countermeasure.",
+    "why.1.t":"Pattern-match satisfaction","why.1.d":"The first explanation that fits a familiar template feels like the diagnosis. Familiarity is retrieval, not verification.",
+    "why.2.t":"Template hijack","why.2.d":"A question that matches a stored template fires the template's answer before this question's constraints are read.",
+    "why.3.t":"Fluent is not true","why.3.d":"Well-formed prose feels more correct as it flows. Confidence rises with token count, not with evidence.",
+    "why.4.t":"Prior as fact","why.4.d":"Training knowledge gets stated in the grammar of observed fact. Priors decay: APIs change, prices move, docs rot.",
+    "why.5.t":"Confirmation seeking","why.5.d":"Once you hold a favorite hypothesis, you pick the tests it will pass instead of the tests that would split it.",
+    "why.6.t":"Surface blindness","why.6.d":"You read your own output as tokens, not characters. Any claim about its surface form is a guess until verified unit by unit.",
+    "floor.h2":"The Floor",
+    "floor.lead":"Three checks, a few seconds each, before every answer. Including the simple-looking ones. Those are exactly where confident wrong answers live.",
+    "floor.1.t":"Goal","floor.1.d":"State the end-state the asker wants in the world, not the question's wording. The goal sentence must not mention any offered option.",
+    "floor.2.t":"Follow-through","floor.2.d":"Run the movie: the asker does exactly what you are about to say. It ends only at the frame where the goal state is verified, never at the first milestone.",
+    "floor.3.t":"Leftovers","floor.3.d":"Name any detail of the request your answer never used. In a short question every detail is load-bearing. An unused one usually marks the trap.",
+    "moves.h2":"Five moves when the Floor trips",
+    "moves.lead":"When a check trips, the question was not as simple as it looked. Leave Direct mode and run these.",
+    "m1.t":"Find the real question","m1.d":"Restate the ask and the goal as an end-state. Name what is adjacent but not asked. List the one to three load-bearing facts.",
+    "m2.t":"Establish truth first","m2.d":"Sort what you observed from what you assume. Verify load-bearing facts with tools, not memory. The cheapest way to be right is to look.",
+    "m3.t":"Mechanism, not vibes","m3.d":"Hold two hypotheses before investigating one. Simulate with concrete values. Demand a checkable chain from cause to effect.",
+    "m4.t":"Kill your own conclusion","m4.d":"Become the reviewer whose job is to reject the work. Run the cheap kill-test now. Skipping it to protect a conclusion is the cardinal sin.",
+    "m5.t":"Outcome first, calibrated","m5.d":"State the verdict in the first sentence. Match grammar to claim type. Close with the weakest link and any open questions.",
+    "claim.h2":"Say what you know, in the right grammar",
+    "claim.lead":"A hallucination is a prior or an assumption wearing the grammar of an observation. The grammar is the tell.",
+    "claim.h.type":"Type","claim.h.mean":"Meaning","claim.h.gram":"Allowed grammar",
+    "claim.r1.m":"You saw it this session: ran it, read it, measured it.",
+    "claim.r2.m":"Follows from observed facts via a mechanism you can state.",
+    "claim.r3.m":"Training knowledge. May be stale. Verify if load-bearing.",
+    "claim.r4.m":"Unverified and required by the conclusion.",
+    "use.h2":"Reach for it when being right beats being fast",
+    "use.lead":"A depth budget of stakes times irreversibility times novelty decides how much runs. Simple asks get a direct answer, after the Floor.",
+    "use.t1":"Debugging","use.t2":"Root-cause analysis","use.t3":"Code review","use.t4":"Architecture decisions","use.t5":"Contested claims","use.t6":"Constrained writing","use.t7":"Security review","use.t8":"Data migrations","use.t9":"High-stakes writing","use.t10":"Trick questions",
+    "install.h2":"Install in Claude Code",
+    "install.lead":"This repository is a Claude Code plugin marketplace. Add it, then install the plugin.",
+    "install.note":"Runtime-agnostic. The same protocol applies to Codex, Gemini, and local models.",
+    "install.copy":"copy",
+    "foot.tag":"A reasoning discipline, not a persona.","foot.repo":"GitHub",
+    "foot.credit":"Distilled from Claude Fable 5. MIT licensed."
+  },
+  vi: {
+    "nav.floor":"Tầng Nền","nav.moves":"Năm Nước Đi","nav.install":"Cài đặt",
+    "hero.eyebrow":"Giao thức lập luận · chưng cất từ Fable 5",
+    "hero.h1":"Phần lập luận mô hình của bạn <em>bỏ qua</em>.",
+    "hero.sub":"Một giao thức cơ học chưng cất từ Claude Fable 5. Nó loại bỏ những kiểu lỗi có thể đoán trước khiến các mô hình trôi chảy tự tin nhưng sai, trên mọi mô hình hay môi trường chạy.",
+    "hero.cta1":"Cài plugin","hero.cta2":"Đọc giao thức",
+    "fp.sub":"chạy trước mọi câu trả lời, không bao giờ bỏ",
+    "fp.c1":"nêu trạng thái đích, không phải câu chữ",
+    "fp.c2":"chạy cuốn phim tới khung đã xác minh",
+    "fp.c3":"gọi tên chi tiết mà câu trả lời bỏ sót",
+    "fp.prompt":"bất kỳ mục nào lỗi thì rời chế độ Trực tiếp, chạy các nước đi",
+    "why.h2":"Trôi chảy không có nghĩa là đúng",
+    "why.lead":"Mô hình mắc lỗi theo những cách đoán được. Gọi tên kiểu lỗi mặc định là biện pháp phản công đầu tiên.",
+    "why.1.t":"Thỏa mãn theo mẫu khớp","why.1.d":"Lời giải thích đầu tiên khớp một khuôn quen thuộc cảm giác như chẩn đoán. Quen thuộc là truy hồi, không phải xác minh.",
+    "why.2.t":"Khuôn mẫu chiếm quyền","why.2.d":"Một câu hỏi khớp khuôn đã lưu sẽ kích hoạt câu trả lời của khuôn trước khi ràng buộc riêng của câu này được đọc.",
+    "why.3.t":"Trôi chảy không phải là đúng","why.3.d":"Văn viết chỉn chu cảm giác đúng hơn khi nó tuôn ra. Sự tự tin tăng theo số token, không theo bằng chứng.",
+    "why.4.t":"Tri thức cũ tưởng là sự thật","why.4.d":"Kiến thức huấn luyện được phát biểu bằng ngữ pháp của sự kiện quan sát. Tri thức cũ phân rã: API đổi, giá thay, tài liệu mục.",
+    "why.5.t":"Đi tìm xác nhận","why.5.d":"Khi đã có giả thuyết yêu thích, bạn chọn các phép thử nó sẽ vượt qua thay vì phép thử có thể loại nó.",
+    "why.6.t":"Mù bề mặt","why.6.d":"Bạn đọc đầu ra của mình như token, không phải ký tự. Mọi khẳng định về hình thức bề mặt của nó là phỏng đoán cho tới khi xác minh từng đơn vị.",
+    "floor.h2":"Tầng Nền",
+    "floor.lead":"Ba mục kiểm tra, mỗi mục vài giây, trước mọi câu trả lời. Kể cả câu trông đơn giản. Đó chính là nơi những câu sai đầy tự tin trú ngụ.",
+    "floor.1.t":"Mục tiêu","floor.1.d":"Nêu trạng thái đích người hỏi muốn có trong thực tế, không phải câu chữ của câu hỏi. Câu mục tiêu không được nhắc tới bất kỳ lựa chọn nào được đưa ra.",
+    "floor.2.t":"Theo tới cùng","floor.2.d":"Chạy cuốn phim: người hỏi làm đúng điều bạn sắp nói. Nó chỉ kết thúc ở khung mà trạng thái đích được xác minh, không bao giờ ở cột mốc đầu tiên.",
+    "floor.3.t":"Phần thừa","floor.3.d":"Gọi tên bất kỳ chi tiết nào của yêu cầu mà câu trả lời không dùng tới. Trong câu hỏi ngắn mọi chi tiết đều gánh trọng lượng. Một chi tiết bị bỏ thường đánh dấu cái bẫy.",
+    "moves.h2":"Năm nước đi khi Tầng Nền báo lỗi",
+    "moves.lead":"Khi một mục báo lỗi, câu hỏi không đơn giản như vẻ ngoài. Rời chế độ Trực tiếp và chạy các bước này.",
+    "m1.t":"Tìm câu hỏi thật","m1.d":"Phát biểu lại yêu cầu và mục tiêu như một trạng thái đích. Gọi tên cái lân cận nhưng không được hỏi. Liệt kê một tới ba sự kiện gánh trọng lượng.",
+    "m2.t":"Xác lập sự thật trước","m2.d":"Tách cái bạn quan sát khỏi cái bạn giả định. Xác minh sự kiện then chốt bằng công cụ, không bằng trí nhớ. Cách rẻ nhất để đúng là nhìn.",
+    "m3.t":"Cơ chế, không phải cảm giác","m3.d":"Giữ hai giả thuyết trước khi điều tra một. Mô phỏng bằng giá trị cụ thể. Đòi một chuỗi kiểm chứng được từ nguyên nhân tới kết quả.",
+    "m4.t":"Tự bác kết luận của mình","m4.d":"Trở thành người review có nhiệm vụ bác bỏ công việc. Chạy phép thử phá giá rẻ ngay bây giờ. Bỏ qua nó để bảo vệ kết luận là tội lỗi lớn nhất.",
+    "m5.t":"Kết quả trước, hiệu chỉnh","m5.d":"Nêu phán quyết ngay câu đầu. Khớp ngữ pháp với loại khẳng định. Kết bằng mắt xích yếu nhất và các câu hỏi còn mở.",
+    "claim.h2":"Nói điều bạn biết, bằng đúng ngữ pháp",
+    "claim.lead":"Ảo giác là một tri thức cũ hoặc một giả định đang khoác ngữ pháp của quan sát. Ngữ pháp chính là dấu hiệu tố cáo.",
+    "claim.h.type":"Loại","claim.h.mean":"Ý nghĩa","claim.h.gram":"Ngữ pháp cho phép",
+    "claim.r1.m":"Bạn đã thấy trong phiên này: chạy nó, đọc nó, đo nó.",
+    "claim.r2.m":"Suy ra từ sự kiện quan sát qua một cơ chế bạn phát biểu được.",
+    "claim.r3.m":"Kiến thức huấn luyện. Có thể đã cũ. Xác minh nếu then chốt.",
+    "claim.r4.m":"Chưa xác minh và bị kết luận đòi hỏi.",
+    "use.h2":"Dùng nó khi đúng quan trọng hơn nhanh",
+    "use.lead":"Ngân sách chiều sâu bằng mức rủi ro nhân tính bất khả hồi nhân độ mới lạ quyết định chạy tới đâu. Câu đơn giản nhận câu trả lời thẳng, sau Tầng Nền.",
+    "use.t1":"Gỡ lỗi","use.t2":"Phân tích nguyên nhân gốc","use.t3":"Review mã","use.t4":"Quyết định kiến trúc","use.t5":"Khẳng định gây tranh cãi","use.t6":"Viết theo ràng buộc","use.t7":"Review bảo mật","use.t8":"Di trú dữ liệu","use.t9":"Viết rủi ro cao","use.t10":"Câu hỏi bẫy",
+    "install.h2":"Cài trong Claude Code",
+    "install.lead":"Kho này là một marketplace plugin của Claude Code. Thêm nó, rồi cài plugin.",
+    "install.note":"Không phụ thuộc môi trường chạy. Cùng giao thức áp dụng cho Codex, Gemini và mô hình cục bộ.",
+    "install.copy":"chép",
+    "foot.tag":"Một kỷ luật lập luận, không phải một nhân cách.","foot.repo":"GitHub",
+    "foot.credit":"Chưng cất từ Claude Fable 5. Giấy phép MIT."
+  }
+};
+
+const root = document.documentElement;
+function applyLang(lang){
+  const dict = I18N[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n"); if(dict[k]!=null) el.textContent = dict[k];
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{
+    const k = el.getAttribute("data-i18n-html"); if(dict[k]!=null) el.innerHTML = dict[k];
+  });
+  root.setAttribute("lang", lang);
+  root.setAttribute("data-lang", lang);
+  document.getElementById("langBtn").innerHTML = lang==="en"
+    ? '<span class="on">EN</span> / VI' : 'EN / <span class="on">VI</span>';
+  try{ localStorage.setItem("ft-lang", lang); }catch(e){}
+}
+function applyTheme(t){
+  root.setAttribute("data-theme", t);
+  document.getElementById("themeIcon").textContent = t==="dark" ? "◐" : "◑";
+  try{ localStorage.setItem("ft-theme", t); }catch(e){}
+}
+
+document.getElementById("langBtn").addEventListener("click",()=>{
+  applyLang(root.getAttribute("data-lang")==="en" ? "vi":"en");
+});
+document.getElementById("themeBtn").addEventListener("click",()=>{
+  applyTheme(root.getAttribute("data-theme")==="dark" ? "light":"dark");
+});
+
+/* copy */
+document.getElementById("copyBtn").addEventListener("click", async ()=>{
+  const lines = [...document.querySelectorAll("#codeText code")].map(c=>"/"+c.textContent).join("\n");
+  try{ await navigator.clipboard.writeText(lines);
+    const b=document.getElementById("copyBtn"); const o=b.textContent; b.textContent="copied";
+    setTimeout(()=>{ applyLang(root.getAttribute("data-lang")); },1400);
+  }catch(e){}
+});
+
+/* init from storage (theme already set inline to avoid flash) */
+(function(){
+  let lang="en", theme="dark";
+  try{ lang = localStorage.getItem("ft-lang") || "en"; theme = localStorage.getItem("ft-theme") || (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"); }catch(e){}
+  applyTheme(theme); applyLang(lang);
+})();
+
+/* scroll reveal */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
+},{threshold:0.12, rootMargin:"0px 0px -8% 0px"});
+document.querySelectorAll(".reveal").forEach((el,i)=>{ el.style.transitionDelay=(Math.min(i%6,5)*45)+"ms"; io.observe(el); });
+</script>
+</body>
+</html>
