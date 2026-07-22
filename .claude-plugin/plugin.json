@@ -1,0 +1,22 @@
+{
+  "name": "fable-thinking",
+  "version": "1.4.0",
+  "description": "Reasoning protocol distilled from Claude Fable 5. Makes any model reason with evidence-grounded claims, multi-hypothesis diagnosis, concrete simulation, adversarial self-review, and calibrated outcome-first delivery.",
+  "author": {
+    "name": "mrgoonie",
+    "url": "https://github.com/mrgoonie"
+  },
+  "homepage": "https://github.com/mrgoonie/fable-thinking",
+  "repository": "https://github.com/mrgoonie/fable-thinking",
+  "license": "MIT",
+  "keywords": [
+    "reasoning",
+    "calibration",
+    "hypotheses",
+    "verification",
+    "rigor",
+    "evidence",
+    "fable-5",
+    "constrained-writing"
+  ]
+}
