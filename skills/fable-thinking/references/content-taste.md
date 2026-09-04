@@ -14,6 +14,10 @@ microcopy, error messages, release notes, social posts, scripts, translations, o
 review of any of these. The trigger is the deliverable type, not the word "write" in the
 ask. Either language, or both.
 
+Engineering forms — commit messages, PR descriptions, issue reports, review comments,
+changelogs, docs pages, and instructions written for a model — have their own shapes in
+`references/engineering-prose.md`; load both whenever the voice matters.
+
 ## Know Your Own Defaults (why model prose converges on slop)
 
 The writing-domain instances of the failure modes in SKILL.md:
@@ -56,6 +60,10 @@ The writing-domain instances of the failure modes in SKILL.md:
 5. **Subtract before delivering.** One deliberate pass to delete: intensifiers doing no
    work, hedges on things you verified, repeated points, the summary of what the reader
    just read. What survives is the writing.
+6. **Draft once, repair by edits.** Draft in the reasoning space when the runtime grants
+   one; fix by targeted edits, never by regenerating the whole text to change one
+   paragraph — regeneration re-rolls every sentence and reintroduces slop. Deliver one
+   version unless variants were asked for.
 
 ## What good writing is (evaluable, not vibes)
 
@@ -71,6 +79,19 @@ The writing-domain instances of the failure modes in SKILL.md:
   pronoun pair never drifts (a bạn that becomes quý khách mid-page tells the reader two
   different people wrote it, and neither imagined them).
 - **Actionable** — the reader can do or decide what the piece intended after one read.
+
+## Structure rules (the positive form of "structure worship")
+
+- Prose by default. A list only for genuinely parallel items (steps, options, findings),
+  one or two sentences per item, never a paragraph per bullet.
+- A table only for values the reader will compare (numbers, attributes across options).
+- Headers only above roughly 500 words, and then at most a few; a short piece has none.
+- Commands, code, error text, and file paths go in fenced blocks or code spans, never
+  woven into a sentence; at most one identifier per sentence in prose.
+- One idea per paragraph; the first sentence carries it. Bold the first few words of a
+  bullet at most, never whole sentences.
+- Structure must encode a relationship (sequence, hierarchy, comparison). If removing the
+  formatting loses nothing, remove it.
 
 ## What to avoid — English slop catalog (matches are failed gates)
 
@@ -102,6 +123,32 @@ The writing-domain instances of the failure modes in SKILL.md:
 - Quy ước mượn từ tiếng Anh: Viết Hoa Từng Chữ trong tiêu đề, khoảng trắng trước dấu
   câu, chấm phẩy kiểu liệt kê Anh-Mỹ áp vào câu Việt.
 - Kết bài "Tóm lại…" nhắc lại nguyên văn những gì vừa viết.
+- Bỏ dấu hoặc sai dấu ở bất kỳ từ nào ("nguoi dung", "hoan tat", "Ha Noi") — không chỉ
+  tên riêng; văn bản tiếng Việt luôn đủ dấu, kể cả trong tiêu đề, nút bấm, thông báo lỗi.
+- Thuật ngữ Anh trộn vô nguyên tắc: lúc "pull request" lúc "yêu cầu kéo", lúc "deploy" lúc
+  "triển khai" trong cùng một bài; hoặc dịch cả identifier, lệnh, tên sản phẩm.
+- Định dạng số, ngày, tiền theo kiểu Anh trong câu Việt: "1,000.5", "September 4, 2026",
+  "$" đứng trước số tiền VND.
+
+## Reviewing, editing, and translating someone else's prose
+
+The moves above assume you are the author. When the text is someone else's, the job
+changes from writing to fidelity:
+
+- **Review:** quote the sentence, name the defect as a mechanism (the reader loses X
+  because Y), tag severity (blocking, should, nit), offer a rewrite. Separate defects from
+  taste; taste is offered once, as taste, and dropped if declined. The forms for code
+  review comments are in `references/engineering-prose.md`.
+- **Edit:** preserve the author's voice and register; minimal diff; change meaning only
+  when asked; show what changed and why when the edit is not obvious. Never rewrite a page
+  to fix a paragraph.
+- **Translate:** translate meaning, not words — restructure the sentence when the target
+  language wants a different shape. Fix one glossary before starting and hold it with zero
+  drift. Do not translate identifiers, commands, code, file paths, product names, or
+  standardized jargon; render them exactly. Map the register deliberately (in Vietnamese:
+  choose the pronoun pair that matches the source's distance, then hold it). After
+  translating, verify byte-identical numbers, dates, names, links, and code across source
+  and target; a translation that changes a number is a defect, not a nuance.
 
 ## Details models habitually miss
 
@@ -117,12 +164,22 @@ The writing-domain instances of the failure modes in SKILL.md:
 - Vietnamese mechanics: dấu thanh đúng trong tên riêng (không "slug hóa" tên người); từ
   Hán-Việt vs thuần Việt chọn theo sắc thái chứ không ngẫu nhiên; loại từ (cái/chiếc/
   con/bức…) đúng với danh từ; hỏi/ngã theo chuẩn chính tả, không theo phát âm vùng.
+- Quy ước tiếng Việt kỹ thuật: giữ nguyên identifier, lệnh, tên sản phẩm và jargon đã
+  chuẩn hóa (commit, pull request, deploy, token); dịch từ thông thường; một bảng thuật
+  ngữ cho cả bài, không đổi giữa chừng. Số và tiền theo chuẩn Việt: 1.000.000 đ, 3,5%,
+  ngày 04/09/2026 (ngày-tháng-năm). Tiểu từ tình thái (ạ, nhé, nhỉ) là công cụ register:
+  phải khớp cặp xưng hô đã chọn, không rải ngẫu nhiên.
 - Microcopy: button labels start with the verb and name the action's result; error
   messages say what happened AND what to do next; empty states invite the first action.
+  Design microcopy together with the UX states in `references/design-taste.md`.
 - Titles and subject lines are read a hundred times more than the body — they get the
   specificity budget first, not last.
 - What the piece displaces: the reader's time. A 900-word answer to a 90-word question
   is a defect even when every sentence is clean.
+- When the source is a PDF, scan, screenshot, or image, transcribe it with the confidence
+  tags in `references/document-vision.md` before writing about it.
+- A report that synthesizes many sources follows the claim-typed synthesis template in
+  `references/research-taste.md`; this reference then governs its prose.
 
 ## Verify (fluency makes this mandatory — your prose always passes your own re-read)
 
@@ -159,6 +216,7 @@ as a loop, until a full pass over the final text is clean.
 | Slop-free | zero catalog matches in either language | itemized scan |
 | Facts | claims typed; checkable ones verified | fact check acts |
 | Fit | length/format/platform constraints met | constraint loop on final text |
+| Fidelity (edit/translate) | voice preserved; numbers, names, links, code byte-identical | diff review + byte check |
 
 Deliver with Claim Discipline: "scanned against both catalogs and fact-checked the three
 figures" is a different — and honest — claim than "polished the draft". Name the weakest
@@ -176,3 +234,7 @@ link (an unverified quote, an assumed audience) in the delivery.
 | Summarize what the reader just read | End where the content ends — or with the next action |
 | Ship facts on fluency | Type and verify them like any load-bearing claim |
 | Answer at the length you generated | Answer at the length the question deserved |
+| Bullet and header everything | Prose by default; lists for parallel items, tables for comparisons |
+| Rewrite someone's text in your voice | Minimal diff; separate defects from taste; keep their register |
+| Translate word by word | Meaning first; one glossary; identifiers and numbers untouched |
+| Regenerate the whole draft to fix a paragraph | Targeted edits, then re-scan the whole text |

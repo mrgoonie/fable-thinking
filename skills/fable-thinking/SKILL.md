@@ -1,19 +1,19 @@
 ---
 name: fable-thinking
-description: Reasoning protocol distilled from Claude Fable 5. Makes any model reason like Fable — evidence-grounded claims, multi-hypothesis diagnosis, concrete simulation, adversarial self-review, calibrated outcome-first delivery. Its never-skipped Floor check catches simple-looking trick questions models answer confidently wrong, and its Constraint Loop mechanically verifies hard output constraints (banned letters, exact counts, strict formats) that models otherwise rubber-stamp. Use for debugging, review, analysis, decisions, constrained writing, or any task where being right matters more than being fast.
+description: Reasoning protocol distilled from Claude Fable 5.1. Makes any model reason like Fable — evidence-grounded claims, multi-hypothesis diagnosis, concrete simulation, adversarial self-review, calibrated outcome-first delivery. Its never-skipped Floor check catches simple-looking trick questions models answer confidently wrong, and its Constraint Loop mechanically verifies hard output constraints (banned letters, exact counts, strict formats) that models otherwise rubber-stamp. Use for debugging, review, analysis, decisions, constrained writing, or any task where being right matters more than being fast. Domain playbooks apply it to long-horizon agentic work, sub-agent and runtime orchestration, coding and engineering standards, debugging to root cause, solution exploration, research, security, document vision, UI/UX, motion, engineering prose, skill use, token economy, and first-principles, sequential, and creative thinking, so smaller models reach Fable-grade output at a smaller token budget.
 user-invocable: true
-when_to_use: "Invoke when a task needs careful reasoning rather than a routine answer — diagnosis, review, root-cause analysis, architecture or strategy decisions, contested claims, high-stakes writing, or output that must satisfy a mechanically checkable constraint (letter bans, word counts, acrostics, strict formats). Also worth applying to simple-looking questions: the Floor check costs three sentences and catches confident template answers."
+when_to_use: "Invoke when a task needs careful reasoning rather than a routine answer — diagnosis, review, root-cause analysis, architecture or strategy decisions, contested claims, high-stakes writing, or output that must satisfy a mechanically checkable constraint (letter bans, word counts, acrostics, strict formats). Also worth applying to simple-looking questions: the Floor check costs three sentences and catches confident template answers. Load the matching domain playbook for long agentic runs, non-trivial code changes, debugging and root-cause investigation, choosing between approaches, system or module design, research syntheses, security-sensitive code, documents with figures or tables, user-facing surfaces, animation or motion graphics, engineering prose (commits, PRs, reviews, docs, prompts), work split across sub-agents or agent runtimes, or finding and invoking a skill."
 category: utilities
-keywords: [reasoning, calibration, hypotheses, verification, rigor, evidence, fable-5, constrained-writing]
+keywords: [reasoning, calibration, hypotheses, verification, rigor, evidence, fable-5, fable-5-1, constrained-writing, agentic, orchestration, subagents, runtimes, coding, research, security, vision, token-efficiency, skills, motion, animation, engineering-prose, engineering-standards, system-design, debugging, root-cause, solution-design, first-principles, sequential, creative]
 argument-hint: "[task or question to reason through]"
 metadata:
   author: agentkit
-  version: "1.4.0"
+  version: "1.5.0"
 ---
 
 # Fable Thinking
 
-The reasoning discipline of Claude Fable 5, distilled into an executable protocol. This is
+The reasoning discipline of Claude Fable 5.1, distilled into an executable protocol. This is
 not a persona to imitate — it is a set of procedures that make any model's reasoning more
 grounded, better calibrated, and harder to fool, including by its own fluent output. It
 cannot add capability; it removes the predictable failure modes that waste whatever
@@ -303,6 +303,11 @@ forming automatically:
   reading is retrieval, not reasoning. Demote it to a hypothesis and run the Floor
   against it deliberately. Speed plus confidence is the signature of template hijack,
   not of correctness.
+- **Switch thinking mode deliberately** — when the conventional answer violates a
+  constraint, rebuild from what is verifiably required (first principles); when steps
+  depend on earlier ones, number them and mark revisions (sequential); when every option
+  fails, fill a quota of options before judging any (creative). Modes generate material;
+  the moves still check it. Procedures and budgets: `references/thinking-modes.md`.
 
 ## Harness Leverage (use what the environment grants)
 
@@ -324,6 +329,15 @@ that inventory as your verification budget. Two rules govern its use:
 Confidence earned this way compounds: every loop iteration converts an ASSUMED into an
 OBSERVED. Confidence without a loop behind it is the fluent-≠-true default wearing a
 harness it never used.
+
+## Token Economy (Fable-grade output at a smaller budget)
+
+Cost is the completed task, not the request. Never pay twice: read once and keep a ledger
+instead of re-reading; batch independent checks in one turn; run the narrowest test first;
+never re-run an identical failed command; stop reasoning at convergence; deliver
+outcome-first without echoing tool output or narrating the process. Depth follows the
+Proportionality Gate (stakes × irreversibility × novelty), never question length. Budgets
+per mode, reading and tool-call rules, and the anti-pattern list: `references/token-economy.md`.
 
 ## Execution Notes
 
@@ -377,23 +391,30 @@ Any NO: fix it before delivering, or state plainly which gate you could not sati
 | Deliver answer-shaped non-answers | Worse than an honest gap | "Verified X; still open: Y" |
 | Certify your own text by re-reading it | You see tokens, not characters — a re-read always passes | Decompose into the governed units and test each, or run a tool check |
 
-## References
+## Domain Playbooks (load by deliverable type)
 
-- `references/worked-examples.md` — four end-to-end traces (trick question, bug diagnosis,
-  code review, metrics analysis) contrasting default-mode reasoning with this protocol.
-  Load when you want to see the moves applied, or before first use in Full mode.
-- `references/design-taste.md` — this protocol applied to UI/UX and frontend design:
-  design-domain failure modes (mode collapse, render blindness), how to frame and rank
-  before drawing, what good design is in evaluable terms, the slop catalog, details
-  models habitually miss, and the render–stress–compute verification loop. Load BEFORE
-  writing any markup, styles, or component code whenever the deliverable is a surface a
-  human will look at (page, component, dashboard, email, slide, artifact, chart) or when
-  reviewing one — the trigger is the deliverable type, not the word "design" in the ask.
-- `references/content-taste.md` — this protocol applied to writing in English and
-  Vietnamese: writing-domain failure modes (fluency inflation, symmetry addiction,
-  translationese), how to frame the reader and fix the register before drafting (in
-  Vietnamese: choose the pronoun pair first), what good writing is in evaluable terms,
-  per-language slop catalogs, habitually missed details, and the read-aloud–scan–delete
-  verification loop. Load BEFORE drafting whenever the deliverable is prose a human will
-  read (docs, posts, copy, emails, reports, microcopy, translations) or when reviewing
-  prose — the trigger is the deliverable type, not the word "write" in the ask.
+Each reference applies this protocol to one domain: its failure modes, the moves in domain
+order, evaluable quality criteria, a slop catalog, habitually missed details, a verify
+loop, and a Do / Don't table. Load the matching one BEFORE starting the work — the trigger
+is the deliverable type, not a word in the ask.
+
+| Load | When |
+|------|------|
+| `references/worked-examples.md` | Before first use in Full mode, or to see the moves applied end to end: trick question, bug diagnosis, code review, metrics analysis, root cause with prevention, solution exploration, delegate verification. |
+| `references/agentic-long-horizon.md` | Any task spanning many steps, tool calls, or sessions: autonomous runs, migrations, multi-file features, delegated or parallel work. |
+| `references/subagent-orchestration.md` | Before spawning any sub-agent or worker: delegate-or-not, the delegation packet, disjoint ownership, fan-in, verifying delegate reports. |
+| `references/runtime-orchestration.md` | Work spanning more than one agent runtime or vendor: capability inventory, portable instructions, handoff receipts, mutation isolation, routing by fit and cost. |
+| `references/coding-taste.md` | Before changing, reviewing, or debugging code beyond a rename: root cause, invariant ledger, surgical edits, discriminating tests. |
+| `references/engineering-standards.md` | Writing or reviewing non-trivial code; any module, service, schema, API, or infrastructure design; design reviews: principles, code standards, system design standards, review checklist. |
+| `references/debugging-root-cause.md` | Any failure, flaky behavior, regression, incident, or recurring bug: reproduce, differential diagnosis, causal chain to the root, fix at the cause's altitude, prove both ways, prevent recurrence. |
+| `references/solution-exploration.md` | Before committing to an approach: criteria first, a real option set, cheapest kill-tests, timeboxed spikes, simplest sufficient choice, legible decision record. |
+| `references/research-taste.md` | Investigations, comparisons, literature or market scans, "what is the state of X", any synthesis from many sources. |
+| `references/design-taste.md` | Before writing markup, styles, or component code for anything a human looks at; UX flows, forms, states, accessibility; UI reviews. |
+| `references/motion-taste.md` | Anything that moves: UI transitions and micro-interactions, loading states, animated charts, motion graphics and video sequences, slide builds, code-driven animation; reviews of motion. |
+| `references/content-taste.md` | Before drafting, editing, reviewing, or translating prose a human reads, in English or Vietnamese: docs, posts, copy, emails, reports, microcopy. |
+| `references/engineering-prose.md` | Commit messages, PR descriptions, issue reports, review comments, changelogs, READMEs and docs pages, decision records, runbooks, and instructions written for a model (prompts, skills, harness files, packets). |
+| `references/document-vision.md` | Any input that is an image, PDF, scan, screenshot, slide, chart, diagram, or a table inside a picture. |
+| `references/security-taste.md` | Code or reviews touching auth, sessions, input parsing, files, payments, secrets, crypto, outbound requests, LLM tool integrations, CI/CD. |
+| `references/thinking-modes.md` | The conventional answer violates a constraint (first principles); a long dependent chain needs visible revision (sequential); every option fails (creative). |
+| `references/token-economy.md` | Constrained budgets, many-tool-call tasks, sub-agent effort settings, or a similar run that felt slow or verbose. |
+| `references/skill-usage.md` | Routing a task to a skill, a user naming a skill or slash command, a skill script failing, first use of a third-party skill: live-catalog discovery, progressive loading, precedence, script inspection, outcome verification. |

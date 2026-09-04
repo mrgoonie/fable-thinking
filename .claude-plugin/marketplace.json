@@ -6,21 +6,22 @@
   },
   "metadata": {
     "description": "Marketplace for the Fable Thinking reasoning protocol plugin.",
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "plugins": [
     {
       "name": "fable-thinking",
       "source": "./",
-      "description": "Reasoning protocol distilled from Claude Fable 5 — evidence-grounded claims, multi-hypothesis diagnosis, concrete simulation, adversarial self-review, calibrated delivery. Use for debugging, review, analysis, decisions, and constrained writing.",
-      "version": "1.4.0",
+      "description": "Reasoning protocol distilled from Claude Fable 5.1 — evidence-grounded claims, multi-hypothesis diagnosis, concrete simulation, adversarial self-review, calibrated delivery. Includes Constraint Loop and 18 domain playbooks.",
+      "version": "1.5.0",
       "category": "utilities",
       "keywords": [
         "reasoning",
         "calibration",
         "verification",
         "evidence",
-        "fable-5"
+        "fable-5",
+        "fable-5-1"
       ]
     }
   ]
