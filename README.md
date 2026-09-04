@@ -1,6 +1,6 @@
 # Fable Thinking
 
-> The reasoning discipline of Claude Fable 5, distilled into an executable protocol — packaged as a Claude Code plugin.
+> The reasoning discipline of Claude Fable 5.1, distilled into an executable protocol — packaged as a Claude Code plugin with 18 domain playbooks.
 
 [![Fable Thinking](./web/assets/hero-dark.png)](https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/)
 
@@ -18,6 +18,7 @@ It works across models and runtimes (Claude, Codex/GPT, Gemini, local models).
 - **Adversarial self-review** — treats your own fluent prose as a suspect, not proof.
 - **Constraint Loop** — mechanically verifies hard output constraints (banned letters, exact counts, strict formats) unit by unit, instead of rubber-stamping them.
 - **Calibrated, outcome-first delivery** — states claims with the confidence the evidence supports.
+- **18 Domain Playbooks** — specialized references for long-horizon agentic runs, subagent/runtime orchestration, coding taste, engineering standards, debugging, security, and content taste.
 
 ## When to use it
 
@@ -57,7 +58,7 @@ fable-thinking/
 ├── skills/
 │   └── fable-thinking/
 │       ├── SKILL.md          # The reasoning protocol
-│       └── references/       # Content, design, and worked examples
+│       └── references/       # 18 domain playbooks and worked examples
 ├── web/                      # Landing page (published to AgentWiki)
 │   ├── index.html
 │   └── assets/hero-dark.png
@@ -70,7 +71,7 @@ The landing page is published at **[api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7](ht
 
 ## Credits
 
-Distilled from the reasoning discipline of Claude Fable 5. Originally authored as part of [AgentKit](https://github.com/mrgoonie).
+Distilled from the reasoning discipline of Claude Fable 5.1. Originally authored as part of [AgentKit](https://github.com/mrgoonie).
 
 ## License
 
