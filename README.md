@@ -2,9 +2,9 @@
 
 > The reasoning discipline of Claude Fable 5.1, distilled into an executable protocol — packaged as a Claude Code plugin with 18 domain playbooks.
 
-[![Fable Thinking](./web/assets/hero-dark.png)](https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/)
+[![Fable Thinking](./web/assets/hero-dark.png)](https://api.agentwiki.cc/s/5W3EqlY05GbdU4AKHY2o4/)
 
-<p align="center"><b><a href="https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/">→ View the live landing page</a></b> · dark/light theme · EN / VI</p>
+<p align="center"><b><a href="https://api.agentwiki.cc/s/5W3EqlY05GbdU4AKHY2o4/">→ View the live landing page</a></b> · dark/light theme · EN / VI</p>
 
 **Fable Thinking** is not a persona to imitate. It is a set of mechanical procedures that make any model's reasoning more grounded, better calibrated, and harder to fool — including by its own fluent output. It cannot add capability; it removes the predictable failure modes that waste whatever capability the executing model has.
 
@@ -67,7 +67,7 @@ fable-thinking/
 
 ## Live page
 
-The landing page is published at **[api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7](https://api.agentwiki.cc/s/4pscSZumUfvoLT6jUUxz7/)** — dark/light theme, English and Vietnamese.
+The landing page is published at **[api.agentwiki.cc/s/5W3EqlY05GbdU4AKHY2o4](https://api.agentwiki.cc/s/5W3EqlY05GbdU4AKHY2o4/)** — dark/light theme, English and Vietnamese.
 
 ## Credits
 
